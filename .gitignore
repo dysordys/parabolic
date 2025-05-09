@@ -1,0 +1,17 @@
+*~
+*.Rhistory
+*.DS_Store
+*.aux
+*.log
+*.bbl
+*.blg
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.rubbercache
+.Rproj.user
+*/*_cache
+*/*_files
+*.html
+gnuplot/
