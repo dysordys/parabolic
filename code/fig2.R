@@ -35,18 +35,19 @@ p2 <- dat |>
   mutate(name = fct_relevel(name, "numTypes", "excessProd")) |>
   ggplot(aes(x = paramValue, y = value, color = name, linetype = expType)) +
   geom_line(linewidth = 0.6, alpha = 0.6) +
-  facet_wrap(~ param, labeller = label_parsed, strip.position = "bottom") +
+  facet_wrap(~ param, labeller = label_parsed) +
   scale_x_log10(labels = scales::label_log()) +
   scale_y_continuous(name = "No. of coexisting species /\nRelative excess production",
                      breaks = (0:5) * 2, limits = c(0, 10)) +
   scale_color_manual(
-    values = c("numTypes" = "steelblue", "excessProd" = "goldenrod"),
+    values = c("numTypes" = "steelblue", "excessProd" = "gray10"),
     labels = c("numTypes" = "Number of coexisting species",
-               "excessProd" = expression(paste("Relative excess production, ", hat(phi))))
+               "excessProd" = expression(paste("Relative excess production, ",hat(phi))))
   ) +
   labs(x = NULL, color = NULL, linetype = NULL) +
   theme_bw() +
-  theme(panel.grid = element_blank(), strip.text.x = element_blank())
+  theme(panel.grid = element_blank(),
+        strip.placement = "outside", strip.text.x = element_blank())
 
 
 
@@ -55,4 +56,4 @@ p <- (p1 / p2 +
         plot_annotation(tag_levels = list(c("a)", "b)"), "1")))
 
 show(p)
-#ggsave("../figures/new_fig2.pdf", device = cairo_pdf, width = 9, height = 7.8)
+#ggsave("../figures/new_fig2.pdf", device = cairo_pdf, width = 8, height = 7)
