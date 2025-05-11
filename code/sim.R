@@ -30,7 +30,7 @@ integrateEqs <- function(ic, params, tseq = seq(0, 1e6, l = 1001),
 paramList <- function(r, m,
                       na = c(9,  9,  9,  9,  11, 11, 11, 13, 15, 20),
                       nb = c(20, 4,  8,  11, 15, 19, 20, 4,  2,  8),
-                      nc = c(17, 20, 13, 20, 5,  3,  17, 8,  17, 15)) {
+                      nc = c(17, 20, 13, 20, 5,  3,  17, 9,  17, 15)) {
   if ((length(na)!=length(nb)) || (length(nb)!=length(nc))) stop("Input lengths differ")
   list(a = 50 + 2.5*na, b = 5 + 0.25*nb, c = 1 + 0.2*nc, r = r, m = m, S = length(na))
 }
