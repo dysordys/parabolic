@@ -22,17 +22,16 @@ integrateEqs <- function(ic, params, tseq = seq(0, 1e6, l = 1001),
     filter(time == max(time)) |>
     select(!time) |>
     mutate(type = ifelse(species <= params$S, "simplex", "duplex")) |>
-    mutate(species = ((as.integer(species) - 1L) %% params$S + 1L)) |>
-    summarize(conc = conc[type == "simplex"] + 2*conc[type == "duplex"], .by = species)
+    mutate(species = ((as.integer(species) - 1L) %% params$S + 1L))
 }
 
 
 paramList <- function(r, m,
-                      na = c(9,  9,  9,  9,  11, 11, 11, 13, 15, 20),
-                      nb = c(20, 4,  8,  11, 15, 19, 20, 4,  2,  8),
-                      nc = c(17, 20, 13, 20, 5,  3,  17, 9,  17, 15)) {
-  if ((length(na)!=length(nb)) || (length(nb)!=length(nc))) stop("Input lengths differ")
-  list(a = 50 + 2.5*na, b = 5 + 0.25*nb, c = 1 + 0.2*nc, r = r, m = m, S = length(na))
+                      ai = c(72.5, 72.5, 72.5, 72.5, 77.5, 77.5, 77.5, 82.5, 87.5, 100),
+                      bi = c(5.0,  6.0,  7.0,  7.75, 8.75, 9.75, 10.0, 6.0,  5.5, 7.0),
+                      ci = c(3.4,  5.0,  3.6,  5.0,  2.0,  1.6,  4.4,  2.8,  4.4, 4.0)) {
+  if ((length(ai)!=length(bi)) || (length(bi)!=length(ci))) stop("Input lengths differ")
+  list(a = ai, b = bi, c = ci, r = r, m = m, S = length(ai))
 }
 
 
@@ -40,16 +39,14 @@ paramList <- function(r, m,
 sol <- crossing(r = 1, m = exp(seq(log(9.668819e-05), log(1e2), l = 271))) |>
   mutate(ic = list(with_seed(259751L, runif(20, min = 0, max = 1)))) |>
   mutate(params = map2(r, m, paramList)) |>
-  rowid_to_column("id") |>
-  mutate(sol = pmap(list(ic, params, id), \(ic, params, id) {
-    cat(str_c(id, ".\n"))
-    integrateEqs(ic, params)
-  } )) |>
+  mutate(sol = map2(ic, params, integrateEqs, .progress = TRUE)) |>
   unnest(sol)
 
 sol |>
+  summarize(conc = conc[type == "simplex"] + 2*conc[type == "duplex"],
+            .by = c(r, m, species)) |>
   filter(conc > 0) |>
-  mutate(rel_conc = conc / sum(conc), .by = c(id, r, m)) |>
+  mutate(rel_conc = conc / sum(conc), .by = c(r, m)) |>
   ggplot(aes(x = m, y = rel_conc, group = species)) +
   geom_line(color = "steelblue") +
   scale_x_log10() +
