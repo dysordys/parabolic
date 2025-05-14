@@ -17,7 +17,7 @@ tibble(file = Sys.glob("../data/dat_*")) |>
   select(!file) |>
   left_join(read_tsv("../data/growth_rates.tsv", col_types = "cd"),
             by = join_by(species)) |>
-  mutate(species = as_factor(as.integer(species))) |>
+  mutate(species = as.integer(species)) |>
   relocate(param, expType, paramValue, species, type, conc, growthRate, excessProd) |>
   arrange(param, expType, paramValue, species) |>
   write_tsv("../data/alldata_tidy.tsv")

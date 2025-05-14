@@ -24,10 +24,12 @@ p1 <- dat |>
   scale_color_viridis_c(option = "C", end = 0.9) +
   labs(x = NULL, y = "Relative concentration",
        linetype = NULL, color = expression(paste("Growth rate, ", lambda[i]))) +
-  facet_grid(expType ~ param, labeller = labeller(.cols = label_parsed), switch = "x") +
+  facet_grid(expType ~ param, labeller = labeller(.cols = label_parsed)) +
   coord_cartesian(ylim = c(1e-4, NA)) +
   theme_bw() +
-  theme(panel.grid = element_blank(), strip.placement = "outside")
+  theme(panel.grid = element_blank(),
+        strip.placement = "outside",
+        strip.text.x = element_blank())
 
 
 p2 <- dat |>
@@ -35,19 +37,28 @@ p2 <- dat |>
   mutate(name = fct_relevel(name, "numTypes", "excessProd")) |>
   ggplot(aes(x = paramValue, y = value, color = name, linetype = expType)) +
   geom_line(linewidth = 0.6, alpha = 0.6) +
-  facet_wrap(~ param, labeller = label_parsed) +
+  facet_wrap(~ param, labeller = label_parsed, strip.position = "bottom") +
   scale_x_log10(labels = scales::label_log()) +
-  scale_y_continuous(name = "No. of coexisting species /\nRelative excess production",
-                     breaks = (0:5) * 2, limits = c(0, 10)) +
+  scale_y_continuous(
+    name = "No. of coexisting species",
+    breaks = (0:5) * 2,
+    limits = c(0, 10),
+    sec.axis = dup_axis(name = "Equilibrium normalized production")
+  ) +
   scale_color_manual(
-    values = c("numTypes" = "steelblue", "excessProd" = "gray10"),
-    labels = c("numTypes" = "Number of coexisting species",
-               "excessProd" = expression(paste("Relative excess production, ",hat(phi))))
+    values = c("numTypes" = "#56B4E9", "excessProd" = "darkgreen"),
+    guide = "none"
   ) +
   labs(x = NULL, color = NULL, linetype = NULL) +
   theme_bw() +
   theme(panel.grid = element_blank(),
-        strip.placement = "outside", strip.text.x = element_blank())
+        strip.placement = "outside",
+        axis.title.y.left = element_text(color = "#56B4E9"),
+        axis.text.y.left = element_text(color = "#56B4E9"),
+        axis.ticks.y.left = element_line(color = "#56B4E9"),
+        axis.title.y.right = element_text(color = "darkgreen"),
+        axis.text.y.right = element_text(color = "darkgreen"),
+        axis.ticks.y.right = element_line(color = "darkgreen"))
 
 
 
