@@ -17,4 +17,4 @@ read_tsv("../data/fig4_data.tsv", col_types = "ddid-",
   theme(panel.grid = element_blank(), strip.text = element_text(size = 10.5),
         strip.placement = "outside", strip.background = element_blank())
 
-#ggsave("../figures/new_fig4.pdf", device = cairo_pdf, width = 6, height = 7)
+#ggsave("../figures/Fig4_new.pdf", device = cairo_pdf, width = 6, height = 7)

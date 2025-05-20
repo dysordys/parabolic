@@ -64,7 +64,7 @@ p2 <- dat |>
 
 p <- (p1 / p2 +
         plot_layout(heights = c(2, 1), tag_level = "new") +
-        plot_annotation(tag_levels = list(c("a)", "b)"), "1")))
+        plot_annotation(tag_levels = list(c("A", "B"), "1")))
 
 show(p)
-#ggsave("../figures/new_fig2.pdf", device = cairo_pdf, width = 8, height = 7)
+#ggsave("../figures/Fig2_new.pdf", device = cairo_pdf, width = 8, height = 7)
