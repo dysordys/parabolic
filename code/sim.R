@@ -26,30 +26,44 @@ integrateEqs <- function(ic, params, tseq = seq(0, 1e6, l = 1001),
 }
 
 
-paramList <- function(r, m,
-                      ai = c(72.5, 72.5, 72.5, 72.5, 77.5, 77.5, 77.5, 82.5, 87.5, 100),
-                      bi = c(5.0,  6.0,  7.0,  7.75, 8.75, 9.75, 10.0, 6.0,  5.5, 7.0),
-                      ci = c(3.4,  5.0,  3.6,  5.0,  2.0,  1.6,  4.4,  2.8,  4.4, 4.0)) {
+paramList <- function(r, m, ai, bi, ci) {
   if ((length(ai)!=length(bi)) || (length(bi)!=length(ci))) stop("Input lengths differ")
   list(a = ai, b = bi, c = ci, r = r, m = m, S = length(ai))
 }
 
 
+standardParams <- function(r, m, expType = FALSE) {
+  ai <- c(77.5, 72.5, 72.5, 77.5,  72.5, 82.5, 77.5,  72.5,  100,   87.5)
+  bi <- c(10.0,  5.0,  6.0,  9.75,  7.0,  6.0,  8.75,  7.75,   7.0,  5.5)
+  ci <- c( 4.4,  3.4,  5.0,  1.6,   3.6,  2.8,  2.0,   5.0,    4.0,  4.4)
+  if (expType) ai[5] <- 0
+  paramList(r, m, ai, bi, ci)
+}
 
-sol <- crossing(r = 1, m = exp(seq(log(9.668819e-05), log(1e2), l = 271))) |>
-  mutate(ic = list(with_seed(259751L, runif(20, min = 0, max = 1)))) |>
-  mutate(params = map2(r, m, paramList)) |>
+
+standardSeq <- function(from = log(9.668819e-05), to = log(1e2), l = 271) {
+  exp(seq(from, to, length.out = l))
+}
+
+
+
+sol <-
+  crossing(param = "m", r = 1, m = standardSeq(), expType = c(FALSE, TRUE)) |>
+  bind_rows(crossing(param = "r", r = standardSeq(), m = 2, expType = c(FALSE, TRUE))) |>
+  mutate(ic = list(rep(1 / 20, times = 20))) |>
+  mutate(params = pmap(list(r, m, expType), standardParams)) |>
   mutate(sol = map2(ic, params, integrateEqs, .progress = TRUE)) |>
   unnest(sol)
 
 sol |>
-  summarize(conc = conc[type == "simplex"] + 2*conc[type == "duplex"],
-            .by = c(r, m, species)) |>
-  filter(conc > 0) |>
-  mutate(rel_conc = conc / sum(conc), .by = c(r, m)) |>
-  ggplot(aes(x = m, y = rel_conc, group = species)) +
-  geom_line(color = "steelblue") +
-  scale_x_log10() +
-  scale_y_log10() +
-  coord_cartesian(ylim = c(1e-4, NA)) +
-  theme_bw()
+  summarize(conc = conc[type == "simplex"] + 2 * conc[type == "duplex"],
+            .by = c(param, r, m, species, expType)) |>
+  mutate(type = ifelse(species == "5" & expType, "E-species", "S-species")) |>
+  mutate(paramValue = ifelse(param == "m", m, r)) |>
+  select(!r & !m) |>
+  mutate(species = as.character(species)) |>
+  left_join(read_tsv("../data/growth_rates.tsv", col_types = "cd"),
+            by = join_by(species)) |>
+  mutate(numTypes = sum(conc > 3e-5), .by = c(param, expType, paramValue)) |>
+  relocate(param, expType, paramValue, species, type, conc, numTypes) |>
+  write_tsv("../data/alldata_reproduced.tsv")
