@@ -1,20 +1,15 @@
 library(tidyverse)
 
 
-
-dat <- read_tsv("../data/alldata_reproduced.tsv", col_types = "cldicdi") |>
+read_tsv("../data/alldata_reproduced.tsv", col_types = "cldicdi") |>
   filter(conc > 0) |>
   mutate(
-    species = as_factor(species),
     type = fct_relevel(type, "S-species", "E-species"),
     param = as_factor(ifelse(param == "m",
                              "'Target replicator concentration,'~italic('m')",
                              "'Resource concentration,'~italic('r')")),
     expType = ifelse(expType, "With E-species", "Only S-species")
-  )
-
-
-dat |>
+  ) |>
   ggplot(aes(x = paramValue, y = conc, color = growthRate,
              group = species, linetype = type)) +
   geom_line() +

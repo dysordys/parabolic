@@ -1,6 +1,4 @@
 library(tidyverse)
-library(deSolve)
-library(withr)
 
 
 parabDyn <- function(t, state, p) {
@@ -15,7 +13,7 @@ parabDyn <- function(t, state, p) {
 
 integrateEqs <- function(ic, params, tseq = seq(0, 1e6, l = 1001),
                          func = parabDyn, method = "bdf", ...) {
-  sol <- ode(ic, tseq, func, params, method, ...)
+  sol <- deSolve::ode(ic, tseq, func, params, method, ...)
   as_tibble(as.data.frame(sol)) |>
     pivot_longer(!time, names_to = "species", values_to = "conc") |>
     mutate(species = as.integer(species)) |>
@@ -61,8 +59,7 @@ sol |>
   mutate(type = ifelse(species == "5" & expType, "E-species", "S-species")) |>
   mutate(paramValue = ifelse(param == "m", m, r)) |>
   select(!r & !m) |>
-  mutate(species = as.character(species)) |>
-  left_join(read_tsv("../data/growth_rates.tsv", col_types = "cd"),
+  left_join(read_tsv("../data/growth_rates.tsv", col_types = "id"),
             by = join_by(species)) |>
   mutate(numTypes = sum(conc > 3e-5), .by = c(param, expType, paramValue)) |>
   relocate(param, expType, paramValue, species, type, conc, numTypes) |>
