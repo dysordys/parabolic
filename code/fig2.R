@@ -3,7 +3,9 @@ library(patchwork)
 
 
 
-dat <- read_tsv("../data/alldata_tidy.tsv", col_types = "cldicdddi") |>
+dat <- read_tsv("../data/alldata.tsv", col_types = "cldicdddi") |>
+  # Change from absolute to relative concentrations:
+  mutate(conc = conc / sum(conc), .by = c(param, expType, paramValue)) |>
   filter(conc > 0) |>
   mutate(
     species = as_factor(species),
@@ -67,4 +69,4 @@ p <- (p1 / p2 +
         plot_annotation(tag_levels = list(c("A", "B"), "1")))
 
 show(p)
-#ggsave("../figures/Fig2_new.pdf", device = cairo_pdf, width = 8, height = 7)
+#ggsave("../figures/Fig2.pdf", device = cairo_pdf, width = 8, height = 7)

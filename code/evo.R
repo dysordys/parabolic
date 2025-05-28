@@ -46,6 +46,20 @@ standardSeq <- function(from = log(9.668819e-05), to = log(1e2), l = 271) {
 }
 
 
+addMutant <- function(params, a, b, c) {
+  S <- params$S
+  # New mutant with simplex concentration x = 1e-5 and duplex concentration y = 0:
+  init <- c(params$initCond[1:S], 1e-5, params$initCond[(S + 1):(2*S)], 0)
+  paramList(r = params$r, m = params$m, ai = c(params$a, a), bi = c(params$b, b),
+            ci = c(params$c, c), initCond = init)
+}
+
+
+evoDyn <- function(params, iter, tseq = seq(0, 1e6, l = 1001)) {
+  tibble(n = 0:iter, params = list(params))
+}
+
+
 
 sol <-
   crossing(param = "m", r = 1, m = standardSeq(), expType = c(FALSE, TRUE)) |>
