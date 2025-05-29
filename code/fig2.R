@@ -42,22 +42,22 @@ p2 <- dat |>
   facet_wrap(~ param, labeller = label_parsed, strip.position = "bottom") +
   scale_x_log10(labels = scales::label_log()) +
   scale_y_continuous(
-    name = "No. of coexisting species",
+    name = "Number of species",
     breaks = (0:5) * 2,
     limits = c(0, 10),
     sec.axis = dup_axis(name = "Equilibrium normalized production")
   ) +
   scale_color_manual(
-    values = c("numTypes" = "#56B4E9", "excessProd" = "darkgreen"),
+    values = c("numTypes" = "#46A4E9", "excessProd" = "darkgreen"),
     guide = "none"
   ) +
   labs(x = NULL, color = NULL, linetype = NULL) +
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.placement = "outside",
-        axis.title.y.left = element_text(color = "#56B4E9"),
-        axis.text.y.left = element_text(color = "#56B4E9"),
-        axis.ticks.y.left = element_line(color = "#56B4E9"),
+        axis.title.y.left = element_text(color = "#46A4E9"),
+        axis.text.y.left = element_text(color = "#46A4E9"),
+        axis.ticks.y.left = element_line(color = "#46A4E9"),
         axis.title.y.right = element_text(color = "darkgreen"),
         axis.text.y.right = element_text(color = "darkgreen"),
         axis.ticks.y.right = element_line(color = "darkgreen"))

@@ -8,45 +8,50 @@ dat <- read_tsv("../data/fig4_data.tsv", col_types = "ddid-",
 
 
 p1 <- dat |>
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = assocRate)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, NA), breaks = c(0, 50, 100)) +
   labs(x = NULL, y = "Association\nrate") +
   theme_bw() +
   theme(panel.grid = element_blank(),
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p2 <- dat |>
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = 0, color = assocRate, fill = assocRate)) +
   geom_tile() +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
-  scale_color_gradient2(midpoint = 50) +
-  scale_fill_gradient2(midpoint = 50) +
+  scale_color_gradient(low = "firebrick3", high = "skyblue1") +
+  scale_fill_gradient(low = "firebrick3", high = "skyblue1") +
   labs(x = NULL, y = NULL) +
   guides(color = "none", fill = "none") +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-  annotate(geom = "text", x = 0.25, y = 0, label = "warm", color = "black", size = 4) +
-  annotate(geom = "text", x = 1.00, y = 0, label = "cool", color = "white", size = 4) +
-  annotate(geom = "text", x = 1.75, y = 0, label = "warm", color = "black", size = 4)
+  annotate(geom = "text", x = 0.35, y = 0, label = "WARM", color = "black", size = 4) +
+  annotate(geom = "text", x = 1.00, y = 0, label = "COOL", color = "black", size = 4) +
+  annotate(geom = "text", x = 1.65, y = 0, label = "WARM", color = "black", size = 4)
 
 p3 <- dat |>
   ggplot(aes(x = time, y = numTypes)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0)) +
-  labs(x = NULL, y = "No. of coexisting species") +
+  scale_y_continuous(breaks = 0:9 * 10) +
+  labs(x = NULL, y = "Number of species") +
   theme_bw() +
   theme(panel.grid = element_blank(),
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p4 <- (dat |>
+         slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
          ggplot(aes(x = time, y = 0, color = resource, fill = resource)) +
          geom_tile() +
          scale_x_continuous(expand = c(0, 0)) +
          scale_y_continuous(expand = c(0, 0)) +
-         scale_color_viridis_c(begin = 0.6, direction = -1) +
-         scale_fill_viridis_c(begin = 0.6, direction = -1) +
+         scale_color_viridis_c(begin = 0.7, direction = -1) +
+         scale_fill_viridis_c(begin = 0.7, direction = -1) +
          labs(x = NULL, y = NULL) +
          guides(color = "none", fill = "none") +
          theme_minimal() +
@@ -59,9 +64,11 @@ p4 <- (dat |>
 
 
 p5 <- dat |>
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(breaks = c(0, 25, 50)) +
   labs(x = NULL, y = "Resource\nconcentration") +
   theme_bw() +
   theme(panel.grid = element_blank())

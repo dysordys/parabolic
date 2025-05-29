@@ -24,20 +24,20 @@ integrateEqs <- function(params, tseq = seq(0, 1e6, l = 1001),
 }
 
 
-paramList <- function(r, m, ai, bi, ci, initCond = NULL) {
-  if ((length(ai)!=length(bi)) || (length(bi)!=length(ci))) stop("Input lengths differ")
-  S <- length(ai)
+paramList <- function(r, m, a, b, c, initCond = NULL) {
+  if ((length(a) != length(b)) || (length(b) != length(c))) stop("Input lengths differ")
+  S <- length(a)
   init <- if (length(initCond) != 2*S) rep(1, times = 2*S) else initCond
-  list(a = ai, b = bi, c = ci, r = r, m = m, S = S, initCond = init)
+  list(a = a, b = b, c = c, r = r, m = m, S = S, initCond = init)
 }
 
 
 standardParams <- function(r, m, expType = FALSE) {
-  ai <- c(77.5, 72.5, 72.5, 77.5,  72.5, 82.5, 77.5,  72.5,  100,   87.5)
-  bi <- c(10.0,  5.0,  6.0,  9.75,  7.0,  6.0,  8.75,  7.75,   7.0,  5.5)
-  ci <- c( 4.4,  3.4,  5.0,  1.6,   3.6,  2.8,  2.0,   5.0,    4.0,  4.4)
-  if (expType) ai[5] <- 0
-  paramList(r, m, ai, bi, ci)
+  a <- c(77.5, 72.5, 72.5, 77.5,  72.5, 82.5, 77.5,  72.5,  100,   87.5)
+  b <- c(10.0,  5.0,  6.0,  9.75,  7.0,  6.0,  8.75,  7.75,   7.0,  5.5)
+  c <- c( 4.4,  3.4,  5.0,  1.6,   3.6,  2.8,  2.0,   5.0,    4.0,  4.4)
+  if (expType) a[5] <- 0
+  paramList(r, m, a, b, c)
 }
 
 
