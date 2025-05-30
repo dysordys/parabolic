@@ -11,7 +11,7 @@ p1 <- dat |>
   slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = assocRate)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
   scale_y_continuous(limits = c(0, NA), breaks = c(0, 50, 100)) +
   labs(x = NULL, y = "Association\nrate") +
   theme_bw() +
@@ -37,7 +37,7 @@ p2 <- dat |>
 p3 <- dat |>
   ggplot(aes(x = time, y = numTypes)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
   scale_y_continuous(breaks = 0:9 * 10) +
   labs(x = NULL, y = "Number of species") +
   theme_bw() +
@@ -67,9 +67,10 @@ p5 <- dat |>
   slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
   scale_y_continuous(breaks = c(0, 25, 50)) +
-  labs(x = NULL, y = "Resource\nconcentration") +
+  labs(x = expression(paste("time (", phantom() %*% 10^6, ")")),
+       y = "Resource\nconcentration") +
   theme_bw() +
   theme(panel.grid = element_blank())
 
