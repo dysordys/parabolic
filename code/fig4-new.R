@@ -3,10 +3,11 @@ library(patchwork)
 
 
 dat <- read_tsv("../data/evo_data.tsv", col_types = "ddid")
+tmax <- max(dat$time)
 
 
 p1 <- dat |>
-  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = assocRate)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
@@ -17,7 +18,7 @@ p1 <- dat |>
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p2 <- dat |>
-  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = 0, color = assocRate, fill = assocRate)) +
   geom_tile() +
   scale_x_continuous(expand = c(0, 0)) +
@@ -28,9 +29,9 @@ p2 <- dat |>
   guides(color = "none", fill = "none") +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-  annotate(geom = "text", x = 7000, y = 0, label = "WARM", color = "black", size = 3) +
-  annotate(geom = "text", x = 20000, y = 0, label = "COOL", color = "black", size = 3) +
-  annotate(geom = "text", x = 33000, y = 0, label = "WARM", color = "black", size = 3)
+  annotate(geom="text", x=0.175*tmax, y=0, label="WARM", color="black", size=3) +
+  annotate(geom="text", x=0.500*tmax, y=0, label="COOL", color="black", size=3) +
+  annotate(geom="text", x=0.825*tmax, y=0, label="WARM", color="black", size=3)
 
 p3 <- dat |>
   ggplot(aes(x = time, y = numTypes)) +
@@ -42,7 +43,7 @@ p3 <- dat |>
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p4 <- (dat |>
-         slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+         #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
          ggplot(aes(x = time, y = 0, color = resource, fill = resource)) +
          geom_tile() +
          scale_x_continuous(expand = c(0, 0)) +
@@ -54,14 +55,14 @@ p4 <- (dat |>
          theme_minimal() +
          theme(axis.text = element_blank(), axis.ticks = element_blank())) |>
   (\(plt) reduce(1:20, \(p, i) {
-    x <- seq(1000, 39000, l = 20)[i]
+    x <- seq(0.025*tmax, 0.975*tmax, l = 20)[i]
     lab <- ifelse(i %% 2 == 0, "S", "A")
     p + annotate(geom = "text", x = x, y = 0, label = lab, color = "black", size = 3)
   }, .init = plt))()
 
 
 p5 <- dat |>
-  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0)) +

@@ -76,7 +76,7 @@ evoStep <- function(time, params, tseq, resourceFun, assocFun) {
 }
 
 
-evoDyn <- function(params, iter = 100, tseq = seq(0, 1e3, l = 101),
+evoDyn <- function(params, iter = 100, tseq = seq(0, 1e6, l = 101),
                    resourceFun = \(t) 25 * (sin(20*pi*t / iter) + 1),
                    assocFun = \(t) 100 - 90 * abs(2*t / iter - 1)) {
   tibble(time = 0:iter, params = list(params)) |>
@@ -114,7 +114,7 @@ eco |>
 
 # Evolutionary simulations:
 evo <- paramTab(r = 25, m = 2, a = 10, b = 7.5, c = 3) |>
-  evoDyn(iter = 40001) |>
+  evoDyn(iter = 40000, tseq = seq(0, 1e3, l = 101)) |>
   unnest(params)
 
 evo |>
