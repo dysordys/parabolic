@@ -3,20 +3,22 @@ library(tidyverse)
 
 parabDyn <- function(t, state, p) {
   S <- length(p$species)
+  r <- p$r[1]
+  m <- p$m[1]
   x <- state[1:S]
   y <- state[(S + 1):(2*S)]
-  phi <- sum(p$c*x) * p$r / p$m
-  dxdt <- 2*p$b*y - 2*p$a*x^2 - p$r*p$c*x - phi*x
-  dydt <- p$a*x^2 - p$b*y + p$r*p$c*x - phi*y
+  phi <- sum(p$c*x) * r/m
+  dxdt <- 2*p$b*y - 2*p$a*x^2 - r*p$c*x - phi*x
+  dydt <- p$a*x^2 - p$b*y + r*p$c*x - phi*y
   list(c(dxdt, dydt))
 }
 
 
-integrateEqs <- function(params, tseq = seq(0, 1e6, l = 101),
-                         func = parabDyn, method = "bdf", ...) {
+integrateEqs <- function(params, tseq = 10^seq(log10(1e-5), log10(1e6), l = 101),
+                         method = "bdf", func = parabDyn) {
   numSpecies <- nrow(params)
   initCond <- c(params$simplex, params$duplex)
-  sol <- deSolve::ode(initCond, tseq, func, as.list(params), method, ...)
+  sol <- deSolve::ode(initCond, tseq, func, as.list(params), method)
   as_tibble(as.data.frame(sol)) |>
     pivot_longer(!time, names_to = "species", values_to = "conc") |>
     filter(time == max(time)) |>
@@ -76,7 +78,7 @@ evoStep <- function(time, params, tseq, resourceFun, assocFun) {
 }
 
 
-evoDyn <- function(params, iter = 100, tseq = seq(0, 1e6, l = 101),
+evoDyn <- function(params, iter = 100, tseq = 10^seq(log10(1e-5), log10(1e6), l = 101),
                    resourceFun = \(t) 25 * (sin(20*pi*t / iter) + 1),
                    assocFun = \(t) 100 - 90 * abs(2*t / iter - 1)) {
   tibble(time = 0:iter, params = list(params)) |>
