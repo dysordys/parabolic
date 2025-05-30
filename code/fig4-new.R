@@ -2,9 +2,7 @@ library(tidyverse)
 library(patchwork)
 
 
-dat <- read_tsv("../data/fig4_data.tsv", col_types = "ddid-",
-                col_names = c("time", "resource", "numTypes", "assocRate")) |>
-  mutate(time = time / 1e6)
+dat <- read_tsv("../data/evo_data.tsv", col_types = "ddid")
 
 
 p1 <- dat |>
@@ -30,15 +28,14 @@ p2 <- dat |>
   guides(color = "none", fill = "none") +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-  annotate(geom = "text", x = 0.35, y = 0, label = "WARM", color = "black", size = 3) +
-  annotate(geom = "text", x = 1.00, y = 0, label = "COOL", color = "black", size = 3) +
-  annotate(geom = "text", x = 1.65, y = 0, label = "WARM", color = "black", size = 3)
+  annotate(geom = "text", x = 7000, y = 0, label = "WARM", color = "black", size = 3) +
+  annotate(geom = "text", x = 20000, y = 0, label = "COOL", color = "black", size = 3) +
+  annotate(geom = "text", x = 33000, y = 0, label = "WARM", color = "black", size = 3)
 
 p3 <- dat |>
   ggplot(aes(x = time, y = numTypes)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
-  scale_y_continuous(breaks = 0:9 * 10) +
   labs(x = NULL, y = "Number of species") +
   theme_bw() +
   theme(panel.grid = element_blank(),
@@ -57,7 +54,7 @@ p4 <- (dat |>
          theme_minimal() +
          theme(axis.text = element_blank(), axis.ticks = element_blank())) |>
   (\(plt) reduce(1:20, \(p, i) {
-    x <- seq(0.05, 1.95, l = 20)[i]
+    x <- seq(1000, 39000, l = 20)[i]
     lab <- ifelse(i %% 2 == 0, "S", "A")
     p + annotate(geom = "text", x = x, y = 0, label = lab, color = "black", size = 3)
   }, .init = plt))()
@@ -67,9 +64,9 @@ p5 <- dat |>
   slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
+  scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(breaks = c(0, 25, 50)) +
-  labs(x = expression(paste("time (", phantom() %*% 10^6, ")")),
+  labs(x = expression(paste("Invasion event (with ", 10^6, " time units per event)")),
        y = "Resource\nconcentration") +
   theme_bw() +
   theme(panel.grid = element_blank())
