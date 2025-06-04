@@ -11,7 +11,7 @@ dat <- read_tsv("../data/B3/alldata_tidy_B3.tsv", col_types = "cldicdddi") |>
     param = fct_rev(as_factor(ifelse(
       param == "D",
       "'Dilution rate,'~italic('D')",
-      "'Resource concentration in the inflow,'~italic(rho)"
+      "'Equilibrium total concentration,'~italic(rho)"
     ))),
     expType = ifelse(expType, "With E-species", "Only S-species")
   )
