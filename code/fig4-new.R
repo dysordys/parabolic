@@ -8,7 +8,7 @@ tmax <- max(dat$time)
 
 
 p1 <- dat |>
-  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = assocRate)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
@@ -19,7 +19,7 @@ p1 <- dat |>
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p2 <- dat |>
-  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = 0, color = assocRate, fill = assocRate)) +
   geom_tile() +
   scale_x_continuous(expand = c(0, 0)) +
@@ -44,7 +44,7 @@ p3 <- dat |>
         axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 p4 <- (dat |>
-         #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+         slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
          ggplot(aes(x = time, y = 0, color = resource, fill = resource)) +
          geom_tile() +
          scale_x_continuous(expand = c(0, 0)) +
@@ -63,10 +63,10 @@ p4 <- (dat |>
 
 
 p5 <- dat |>
-  #slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
+  slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   scale_y_continuous(breaks = c(0, 25, 50)) +
   labs(x = expression(paste("Time (", phantom() %*% 10^6, ")")),
        y = "Resource\nconcentration") +
