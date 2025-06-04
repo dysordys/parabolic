@@ -53,7 +53,7 @@ standardSeq <- function(from = log(9.668819e-05), to = log(1e2), l = 271) {
 
 
 
-sol <-
+eco <-
   crossing(param = "m", r = 1, m = standardSeq(), expType = c(FALSE, TRUE)) |>
   bind_rows(crossing(param = "r", r = standardSeq(), m = 2, expType = c(FALSE, TRUE))) |>
   mutate(params = pmap(list(r, m, expType), standardParams)) |>
@@ -61,7 +61,7 @@ sol <-
   select(!r & !m) |>
   unnest(sol)
 
-sol |>
+eco |>
   mutate(growthRate = (sqrt(b^2 + c^2*r[1]^2 + 6*b*c*r[1]) - (b + c*r[1])) / 2) |>
   mutate(excessProd = sum(c * simplex) * r[1] / m[1],
          .by = c(param, r, m, expType)) |>

@@ -2,7 +2,8 @@ library(tidyverse)
 library(patchwork)
 
 
-dat <- read_tsv("../data/evo_data.tsv", col_types = "ddid")
+dat <- read_tsv("../data/evo_data.tsv", col_types = "ddid") |>
+  mutate(time = time / 1e6)
 tmax <- max(dat$time)
 
 
@@ -67,7 +68,7 @@ p5 <- dat |>
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(breaks = c(0, 25, 50)) +
-  labs(x = expression(paste("Invasion event (with ", 10^6, " time units per event)")),
+  labs(x = expression(paste("Time (", phantom() %*% 10^6, ")")),
        y = "Resource\nconcentration") +
   theme_bw() +
   theme(panel.grid = element_blank())
@@ -77,4 +78,4 @@ p <- (p1 / p2 / p3 / p4 / p5 +
         plot_layout(heights = c(1, 0.25, 4, 0.25, 1), tag_level = "new"))
 
 show(p)
-#ggsave("../figures/Fig4.pdf", device = cairo_pdf, width = 6, height = 7)
+#ggsave("../figures/Fig4_new.pdf", device = cairo_pdf, width = 6, height = 7)

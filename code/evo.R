@@ -1,24 +1,31 @@
 library(tidyverse)
 
 
+assocFun = function(t) 100 - 90 * abs(t / 1e6 - 1)
+
+
+resourceFun = function(t) 25 * (sin(2*pi*t / 2e5) + 1)
+
+
 parabDyn <- function(t, state, p) {
   S <- length(p$species)
-  r <- p$r[1]
+  a <- assocFun(t)
+  r <- resourceFun(t)
   m <- p$m[1]
   x <- state[1:S]
   y <- state[(S + 1):(2*S)]
   phi <- sum(p$c*x) * r/m
-  dxdt <- 2*p$b*y - 2*p$a*x^2 - r*p$c*x - phi*x
-  dydt <- p$a*x^2 - p$b*y + r*p$c*x - phi*y
+  dxdt <- 2*p$b*y - 2*a*x^2 - r*p$c*x - phi*x
+  dydt <- a*x^2 - p$b*y + r*p$c*x - phi*y
   list(c(dxdt, dydt))
 }
 
 
-integrateEqs <- function(params, tseq = 10^seq(log10(1e-5), log10(1e6), l = 101),
-                         method = "bdf", func = parabDyn) {
+integrateEqs <- function(params, tstart, tseq = seq(0.1, 100, by = 0.1),
+                         func = parabDyn) {
   numSpecies <- nrow(params)
   initCond <- c(params$simplex, params$duplex)
-  sol <- deSolve::ode(initCond, tseq, func, as.list(params), method)
+  sol <- deSolve::ode(initCond, tstart + tseq, func, as.list(params))
   as_tibble(as.data.frame(sol)) |>
     pivot_longer(!time, names_to = "species", values_to = "conc") |>
     filter(time == max(time)) |>
@@ -40,20 +47,6 @@ paramTab <- function(r, m, a, b, c, initCond = NULL) {
 }
 
 
-standardParams <- function(r, m, expType = FALSE) {
-  a <- c(77.5, 72.5, 72.5, 77.5,  72.5, 82.5, 77.5,  72.5,  100,   87.5)
-  b <- c(10.0,  5.0,  6.0,  9.75,  7.0,  6.0,  8.75,  7.75,   7.0,  5.5)
-  c <- c( 4.4,  3.4,  5.0,  1.6,   3.6,  2.8,  2.0,   5.0,    4.0,  4.4)
-  if (expType) a[5] <- 0
-  paramTab(r, m, a, b, c)
-}
-
-
-standardSeq <- function(from = log(9.668819e-05), to = log(1e2), l = 271) {
-  exp(seq(from, to, length.out = l))
-}
-
-
 removeExtinct <- function(params, threshold = 3e-5) {
   params |>
     filter(simplex + 2*duplex >= threshold) |>
@@ -67,57 +60,31 @@ addMutant <- function(params, a, b, c) {
 }
 
 
-evoStep <- function(time, params, tseq, resourceFun, assocFun) {
+evoStep <- function(tstart, params) {
   params |>
-    mutate(a = assocFun(time), r = resourceFun(time)) |>
-    addMutant(a = assocFun(time),
+    addMutant(a = 1, # Value doesn't matter; it is replaced by the oscillating function
               b = 5 + 0.25 * (sample.int(n = 21, size = 1) - 1),
               c = 1 + 0.20 * (sample.int(n = 21, size = 1) - 1)) |>
-    integrateEqs() |>
+    integrateEqs(tstart) |>
     removeExtinct()
 }
 
 
-evoDyn <- function(params, iter = 100, tseq = 10^seq(log10(1e-5), log10(1e6), l = 101),
-                   resourceFun = \(t) 25 * (sin(20*pi*t / iter) + 1),
-                   assocFun = \(t) 100 - 90 * abs(2*t / iter - 1)) {
-  tibble(time = 0:iter, params = list(params)) |>
+evoDyn <- function(params, timeline) {
+  tibble(time = timeline, params = list(params)) |>
     mutate(params = accumulate2(params, time[-1], \(acc, p, t) {
-      if (t %% 100 == 0) cat(str_c("iter: "), t, "\n")
-      evoStep(t, acc, tseq, resourceFun, assocFun)
+      if (t %% 1000 == 0) cat(str_c("time: "), t, "\n")
+      evoStep(t, acc)
     }))
 }
 
 
 
-# Ecological simulations:
-eco <-
-  crossing(param = "m", r = 1, m = standardSeq(), expType = c(FALSE, TRUE)) |>
-  bind_rows(crossing(param = "r", r = standardSeq(), m = 2, expType = c(FALSE, TRUE))) |>
-  mutate(params = pmap(list(r, m, expType), standardParams)) |>
-  mutate(sol = map(params, integrateEqs, .progress = TRUE)) |>
-  select(!r & !m) |>
-  unnest(sol)
-
-eco |>
-  mutate(growthRate = (sqrt(b^2 + c^2*r[1]^2 + 6*b*c*r[1]) - (b + c*r[1])) / 2) |>
-  mutate(excessProd = sum(c * simplex) * r[1] / m[1],
-         .by = c(param, r, m, expType)) |>
-  summarize(conc = simplex + 2*duplex,
-            .by = c(param, r, m, species, expType, excessProd, growthRate)) |>
-  mutate(type = ifelse(species == "5" & expType, "E-species", "S-species")) |>
-  mutate(paramValue = ifelse(param == "m", m, r)) |>
-  select(!r & !m) |>
-  mutate(numTypes = sum(conc > 3e-5), .by = c(param, expType, paramValue)) |>
-  relocate(param, expType, paramValue, species, type, conc, growthRate, excessProd) |>
-  write_tsv("../data/alldata.tsv")
-
-
-
 # Evolutionary simulations:
 evo <- paramTab(r = 25, m = 2, a = 10, b = 7.5, c = 3) |>
-  evoDyn(iter = 40000, tseq = seq(0, 1e3, l = 101)) |>
-  unnest(params)
+  evoDyn(timeline = seq(0, 2e6, by = 50)) |>
+  unnest(params) |>
+  mutate(a = assocFun(time), r = resourceFun(time))
 
 evo |>
   summarize(numSpecies = sum(simplex + 2*duplex > 3e-5), .by = c(time, a, r)) |>
