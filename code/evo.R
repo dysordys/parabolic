@@ -54,40 +54,33 @@ removeExtinct <- function(params, threshold = 3e-5) {
 }
 
 
-addMutant <- function(params, a, b, c) {
-  add_row(params, species = max(params$species) + 1L, simplex = 1e-5, duplex = 0,
-          a = a, b = b, c = c, r = params$r[1], m = params$m[1])
-}
-
-
-evoStep <- function(tstart, params) {
-  params |>
-    addMutant(a = 1, # Value doesn't matter; it is replaced by the oscillating function
-              b = 5 + 0.25 * (sample.int(n = 21, size = 1) - 1),
-              c = 1 + 0.20 * (sample.int(n = 21, size = 1) - 1)) |>
-    integrateEqs(tstart) |>
-    removeExtinct()
+addMutant <- function(params) {
+  crossing(b = 5 + 0.25 * 0:20, c = 1 + 0.2 * 0:20) |>
+    anti_join(select(params, b, c), by = join_by(b, c)) |>
+    slice_sample(n = 1) |>
+    mutate(species = max(params$species) + 1L, simplex = 1e-5, duplex = 0,
+           a = params$a[1], r = params$r[1], m = params$m[1]) |>
+    add_row(.data = params)
 }
 
 
 evoDyn <- function(params, timeline) {
   tibble(time = timeline, params = list(params)) |>
     mutate(params = accumulate2(params, time[-1], \(acc, p, t) {
-      if (t %% 1000 == 0) cat(str_c("time: "), t, "\n")
-      evoStep(t, acc)
-    }))
+      if (t %% 1000 == 0) cat(str_c("time: ", t, "\n"))
+      acc |>
+        addMutant() |>
+        integrateEqs(t) |>
+        removeExtinct()
+    } ))
 }
 
 
 
 # Evolutionary simulations:
 evo <- paramTab(r = 25, m = 2, a = 10, b = 7.5, c = 3) |>
-  evoDyn(timeline = seq(0, 2e6, by = 50)) |>
+  evoDyn(timeline = seq(0, 2e6, by = 100)) |>
   unnest(params) |>
   mutate(a = assocFun(time), r = resourceFun(time))
 
-evo |>
-  summarize(numSpecies = sum(simplex + 2*duplex > 3e-5), .by = c(time, a, r)) |>
-  select(time, resource = r, numTypes = numSpecies, assocRate = a) |>
-  mutate(across(time | resource | assocRate, \(x) round(x, 5))) |>
-  write_tsv("../data/evo_data.tsv")
+write_rds(evo, "../data/evo_data.rds", compress = "xz")

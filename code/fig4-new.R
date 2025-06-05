@@ -2,7 +2,11 @@ library(tidyverse)
 library(patchwork)
 
 
-dat <- read_tsv("../data/evo_data.tsv", col_types = "ddid") |>
+dat <-
+  read_rds("../data/evo_data.rds") |>
+  summarize(numSpecies = sum(simplex + 2*duplex > 3e-5), .by = c(time, a, r)) |>
+  select(time, resource = r, numTypes = numSpecies, assocRate = a) |>
+  mutate(across(time | resource | assocRate, \(x) round(x, 5))) |>
   mutate(time = time / 1e6)
 tmax <- max(dat$time)
 
