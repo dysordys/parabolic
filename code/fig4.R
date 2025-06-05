@@ -2,9 +2,14 @@ library(tidyverse)
 library(patchwork)
 
 
-dat <- read_tsv("../data/fig4_data.tsv", col_types = "ddid-",
-                col_names = c("time", "resource", "numTypes", "assocRate")) |>
+dat <-
+  read_rds("../data/evo_data.rds") |>
+  summarize(numSpecies = sum(simplex + 2*duplex > 3e-5), .by = c(time, a, r)) |>
+  select(time, resource = r, numTypes = numSpecies, assocRate = a) |>
+  mutate(across(time | resource | assocRate, \(x) round(x, 5))) |>
   mutate(time = time / 1e6)
+
+tmax <- max(dat$time)
 
 
 p1 <- dat |>
@@ -30,15 +35,14 @@ p2 <- dat |>
   guides(color = "none", fill = "none") +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-  annotate(geom = "text", x = 0.35, y = 0, label = "WARM", color = "black", size = 3) +
-  annotate(geom = "text", x = 1.00, y = 0, label = "COOL", color = "black", size = 3) +
-  annotate(geom = "text", x = 1.65, y = 0, label = "WARM", color = "black", size = 3)
+  annotate(geom="text", x=0.175*tmax, y=0, label="WARM", color="black", size=3) +
+  annotate(geom="text", x=0.500*tmax, y=0, label="COOL", color="black", size=3) +
+  annotate(geom="text", x=0.825*tmax, y=0, label="WARM", color="black", size=3)
 
 p3 <- dat |>
   ggplot(aes(x = time, y = numTypes)) +
   geom_line(color = viridis::plasma(1)) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
-  scale_y_continuous(breaks = 0:9 * 10) +
   labs(x = NULL, y = "Number of species") +
   theme_bw() +
   theme(panel.grid = element_blank(),
@@ -57,7 +61,7 @@ p4 <- (dat |>
          theme_minimal() +
          theme(axis.text = element_blank(), axis.ticks = element_blank())) |>
   (\(plt) reduce(1:20, \(p, i) {
-    x <- seq(0.05, 1.95, l = 20)[i]
+    x <- seq(0.025*tmax, 0.975*tmax, l = 20)[i]
     lab <- ifelse(i %% 2 == 0, "S", "A")
     p + annotate(geom = "text", x = x, y = 0, label = lab, color = "black", size = 3)
   }, .init = plt))()
@@ -67,9 +71,9 @@ p5 <- dat |>
   slice(1:400 * 100) |> # Reduce resolution (same quality, smaller file size)
   ggplot(aes(x = time, y = resource)) +
   geom_line(color = viridis::plasma(1)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   scale_y_continuous(breaks = c(0, 25, 50)) +
-  labs(x = expression(paste("time (", phantom() %*% 10^6, ")")),
+  labs(x = expression(paste("Time (", phantom() %*% 10^6, ")")),
        y = "Resource\nconcentration") +
   theme_bw() +
   theme(panel.grid = element_blank())

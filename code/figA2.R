@@ -1,7 +1,7 @@
 library(tidyverse)
 
 
-read_tsv("../data/alldata_tidy.tsv", col_types = "cldicdddi") |>
+read_tsv("../data/alldata.tsv", col_types = "cldicdddi") |>
   filter(conc > 0) |>
   mutate(
     type = fct_relevel(type, "S-species", "E-species"),
@@ -14,6 +14,7 @@ read_tsv("../data/alldata_tidy.tsv", col_types = "cldicdddi") |>
              group = species, linetype = type)) +
   geom_line() +
   scale_x_log10(labels = scales::label_log()) +
+  scale_y_log10(labels = scales::label_log()) +
   scale_color_viridis_c(option = "C", end = 0.9) +
   labs(x = NULL, y = "Relative concentration",
        linetype = NULL, color = expression(paste("Growth rate, ", lambda[i]))) +
