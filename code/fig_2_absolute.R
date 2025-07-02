@@ -1,7 +1,7 @@
 library(tidyverse)
 
 
-read_tsv("../data/eco_data.tsv", col_types = "cldicdddi") |>
+read_rds("../data/eco_data.rds") |>
   filter(conc > 0) |>
   mutate(
     type = fct_relevel(type, "S-species", "E-species"),

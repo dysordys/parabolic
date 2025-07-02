@@ -3,7 +3,7 @@ library(patchwork)
 
 
 
-dat <- read_tsv("../data/eco_data.tsv", col_types = "cldicdddi") |>
+dat <- read_rds("../data/eco_data.rds") |>
   # Change from absolute to relative concentrations:
   mutate(conc = conc / sum(conc), .by = c(param, expType, paramValue)) |>
   filter(conc > 0) |>

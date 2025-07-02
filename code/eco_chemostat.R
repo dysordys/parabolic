@@ -72,4 +72,4 @@ eco |>
          .by = c(param, expType, paramValue, resourceConc)) |>
   select(param, expType, paramValue, species, type, conc, growthRate,
          resourceConc, numTypes) |>
-  write_tsv("../data/eco_data_chemostat.tsv")
+  write_rds("../data/eco_data_chemostat.rds", compress = "xz")

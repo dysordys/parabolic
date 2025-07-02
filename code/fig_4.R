@@ -3,7 +3,7 @@ library(patchwork)
 
 
 dat <-
-  read_rds("../data/evo_data.rds") |>
+  read_rds("../data/evol_data.rds") |>
   summarize(numSpecies = sum(simplex + 2*duplex > 3e-5), .by = c(time, a, r)) |>
   select(time, resource = r, numTypes = numSpecies, assocRate = a) |>
   mutate(across(time | resource | assocRate, \(x) round(x, 5))) |>
