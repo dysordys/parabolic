@@ -72,4 +72,4 @@ eco |>
   select(!r & !m) |>
   mutate(numTypes = sum(conc > 3e-5), .by = c(param, expType, paramValue)) |>
   relocate(param, expType, paramValue, species, type, conc, growthRate, excessProd) |>
-  write_tsv("../data/alldata.tsv")
+  write_tsv("../data/eco_data.tsv")
