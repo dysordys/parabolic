@@ -83,4 +83,4 @@ p <- (p1 / p2 / p3 / p4 / p5 +
         plot_layout(heights = c(1, 0.25, 4, 0.25, 1), tag_level = "new"))
 
 show(p)
-#ggsave("../figures/Fig4.pdf", device = cairo_pdf, width = 6, height = 7)
+#ggsave("../figures/Fig_4.pdf", device = cairo_pdf, width = 6, height = 7)
