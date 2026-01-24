@@ -12,7 +12,7 @@ dat <- read_rds("../data/eco_data_chemostat.rds") |>
     type = fct_relevel(type, "S-species", "E-species"),
     param = as_factor(ifelse(
       param == "D",
-      "'Dilution rate,'~italic('D')",
+      "'Dilution rate,'~phi",
       "'Rate of resource inflow,'~italic(rho)"
     )),
     expType = ifelse(expType, "With E-species", "Only S-species")
